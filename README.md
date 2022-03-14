@@ -1,6 +1,5 @@
 # born2bebot
-Our bot project
-
+Our bot project for the Codam Hackathon: The Clash Of Coalitions. We created a bot that can play the Cluster game and battle against other bots.
 
 
 # winscript.sh
