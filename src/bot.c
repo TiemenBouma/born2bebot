@@ -7,7 +7,7 @@ void	make_random_move(t_move *next_move, t_gameinput *g, t_my_chips_data *mine)
 {
 	next_move->type = drop;
 	next_move->color = mine->drawn_chips[arc4random_uniform(2)];
-	dprintf(2, "min col: [%d], max col [%d]\n", g->min_column, g->max_column);
+	// dprintf(2, "min col: [%d], max col [%d]\n", g->min_column, g->max_column);
 	next_move->column = arc4random_uniform(2 * g->max_column + 1) - g->max_column;
 }
 
