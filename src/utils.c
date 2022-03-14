@@ -36,3 +36,12 @@ bool	is_opp_color(t_gameinput *g, int value)
 	}
 	return value >= g->total_number_of_colors / 2;
 }
+
+bool	is_empty(t_vars *v, t_gamestate *g, int col)
+{
+	int q, r, s;
+
+	compute_pos(col, v->gameinput.grid_size, g->gravity, &q, &r, &s);
+	t_tile *t = game_get(v, g, q, r, s);
+	return t->chip.value == -1;
+}

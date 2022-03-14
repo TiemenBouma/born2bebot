@@ -1,5 +1,5 @@
 NAME	=	born2bebot
-CFLAGS	=	-Wall -Wextra -Werror -pedantic $(WNO)
+CFLAGS	=	-Wall -Wextra -Werror -pedantic $(WNO) -fsanitize=address -g
 WNO		=	-Wno-unused-variable -Wno-unused-parameter -Wno-unused-function -Wno-unused-private-field
 
 IDIR	=	inc

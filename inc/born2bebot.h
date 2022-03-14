@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <limits.h>
 
 #define max_search_depth 3
 
@@ -98,6 +99,7 @@ struct s_gamestate
 {
 	t_tile*			tile;					//array of hexagon tiles
 	t_grav			gravity;
+	t_move			move;
 	int				rating;
 	// size_t			amount_legal_moves;		//the num of legal moves at this gamestate
 	// t_move*			legal_moves;			//array of all legal moves;
@@ -134,6 +136,7 @@ void	input(t_vars *v);
 void    *bot(void *ptr);
 
 t_tile*	game_get(t_vars *v, t_gamestate *g, int q, int r, int s);
+void 	compute_pos(int pos, int size, int gravity, int *q, int *r, int *s);
 
 bool	process_move(t_vars *v, t_gamestate *g, t_move *m);
 int		game_winner(t_vars *v, t_gamestate *g);

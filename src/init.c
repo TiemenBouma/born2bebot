@@ -102,11 +102,13 @@ void	init_gamestate(t_vars *v, t_gamestate *g)
 {
 	init_tiles(v, g);
 	init_neigh(v, g);
+	v->current.gravity = bottom;
 }
 void	copy_gamestate(t_vars *v, t_gamestate *dst, t_gamestate *src)
 {
 	copy_tiles(v, dst, src);
 	init_neigh(v, dst);
+	dst->gravity = src->gravity;
 }
 
 static void	get_gameinput(t_gameinput *g)

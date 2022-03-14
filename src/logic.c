@@ -29,13 +29,21 @@ static void game_rotate(t_vars *v, t_gamestate *g, int gravity)
 static void game_drop(t_vars *v, t_gamestate *g, int q, int r, int s, int value)
 {
 	t_tile* t = game_get(v, g, q, r, s);
+	if (!t)
+	{
+		dprintf(2, "[%p]\n", (void*)t);
+		
+		dprintf(2, "[%d][%d][%d]\n", q, r, s);
+		exit(0);
+		return;
+	}
 	t->chip.value = value;
 	t->chip.x = t->x;
 	t->chip.y = t->y;
 	game_update(v, g, t);
 }
 
-static void compute_pos(int pos, int size, int gravity, int *q, int *r, int *s)
+void compute_pos(int pos, int size, int gravity, int *q, int *r, int *s)
 {
 	size -= 1;
 	*q = pos;
@@ -86,7 +94,7 @@ int game_winner(t_vars *v, t_gamestate *g)
 				best_index = i;
 				best_direction = dir;
 			}
-			else if (length == best_length)
+			else if (length == best_length && best_value * 2 / v->gameinput.amount_colors_per_player != value * 2 / v->gameinput.amount_colors_per_player)
 				best_count += 1;
 		}
 	}
@@ -109,7 +117,6 @@ bool	game_end(t_vars *v)
 	int ret_winner = game_winner(v, &v->current);
 	if (ret_winner != -1)
 	{
-		// dprintf(2, "there is a winner, it's color: [%d]\n", ret_winner);
 		return true;
 	}
 	return false;
