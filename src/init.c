@@ -39,7 +39,7 @@ static void	init_tiles(t_vars *v, t_gamestate *g)
 	g->tile = calloc(v->gameinput.amount_of_tiles, sizeof(t_tile));
 	int	i = 0;
 
-	for (int q = -v->gameinput.grid_size + 1; q < v->gameinput.grid_size; q += 1) 
+	for (int q = -v->gameinput.grid_size + 1; q < v->gameinput.grid_size; q += 1)
 	{
 		for (int r = -v->gameinput.grid_size + 1; r < v->gameinput.grid_size; r += 1)
 		{
@@ -70,7 +70,7 @@ static void	copy_tiles(t_vars *v, t_gamestate *g, t_gamestate *src)
 	g->tile = calloc(v->gameinput.amount_of_tiles, sizeof(t_tile));
 	int	i = 0;
 
-	for (int q = -v->gameinput.grid_size + 1; q < v->gameinput.grid_size; q += 1) 
+	for (int q = -v->gameinput.grid_size + 1; q < v->gameinput.grid_size; q += 1)
 	{
 		for (int r = -v->gameinput.grid_size + 1; r < v->gameinput.grid_size; r += 1)
 		{
