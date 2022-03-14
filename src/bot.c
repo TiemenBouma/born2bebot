@@ -1,7 +1,12 @@
 #include "born2bebot.h"
 #include "utils.h"
 #include <pthread.h>
-#include <stdlib.h>
+
+#ifdef __linux__
+# include <bsd/stdlib.h>
+#else
+# include <stdlib.h>
+#endif
 
 int	make_random_move(t_vars *v, t_move *next_move, t_gameinput *g, t_my_chips_data *mine)
 {

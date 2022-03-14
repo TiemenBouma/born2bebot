@@ -9,8 +9,12 @@ _SRC	=	main utils timer bot input init logic
 
 SRC		=	$(addsuffix .c, $(addprefix $(SDIR)/, $(_SRC)))
 
+ifeq ($(shell uname -s),Linux)
+	CFLAGS += -lbsd -pthread -lm
+endif
+
 all:
-	$(CC) $(CFLAGS) $(SRC) -I$(IDIR) -o $(NAME)
+	$(CC) -I$(IDIR) -o $(NAME) $(SRC) $(CFLAGS)
 
 fclean:
 	rm -rf $(NAME)

@@ -3,11 +3,12 @@ Our bot project for the Codam Hackathon: The Clash Of Coalitions. We created a b
 
 
 # winscript.sh
-If you want to check how often one bot beats another in n games, you can execute the winscript like this:
+It is possible to check how often one bot beats another in n games. For that you can edit and execute winscript.sh.
+
+BOT1 and BOT2 define the bot executables, N_GAMES defines the n amount of games, GAME_PATH defines the path to the game to be executed.
+
+Execute the winscript like this:
 
 ```
   ./winscript.sh
 ```
-
-At the top of this script it is possible to define the bots that will play as BOT1 and BOT2, and the n amount of games (N_GAMES) you want them to play.
-

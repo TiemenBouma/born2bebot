@@ -42,7 +42,7 @@ static t_move	get_opponent_move()
 	if (!strcmp(move_type, "drop"))
 	{
 		move.type = drop;
-		scanf("%d %d\n", &move.column, &move.color);
+		scanf("%d %d\n", &move.column, (int*)&move.color);
 		// dprintf(2, "opp played: drop %d %d\n", move.column, move.color); //debug
 	}
 	else if (!strcmp(move_type, "rotate"))
