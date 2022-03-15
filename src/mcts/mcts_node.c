@@ -11,7 +11,7 @@ t_mcts_node* mcts_node_new(const t_gamestate* game_state)
 	node->parent = NULL;
 	node->player = 1;	// TODO: Get active player of game state
 
-	node->children.count = ~0;	// Don't init children yet
+	node->children.data = NULL;	// Don't init children yet
 
 	node->simulations = 0;
 	node->score = 0;
@@ -29,7 +29,7 @@ t_mcts_node* mcts_node_new_child(t_mcts_node* parent, const t_gamestate* game_st
 	node->parent = parent;
 	node->player = parent->player * -1;	// TODO: Get active player of game state
 
-	node->children.count = ~0;	// Don't init children yet
+	node->children.data = NULL;	// Don't init children yet
 
 	node->simulations = 0;
 	node->score = 0;
@@ -39,15 +39,17 @@ t_mcts_node* mcts_node_new_child(t_mcts_node* parent, const t_gamestate* game_st
 
 void mcts_node_free(t_mcts_node* node)
 {
-	list_foreach(&node->children, (t_foreach_value)mcts_node_free);
+	if (node->children.data)
+		list_foreach(&node->children, (t_foreach_value)mcts_node_free);
 	free(node);
 }
 
 float mcts_node_get_weight(const t_mcts_node* node)
 {
-	const float exploration_parameter = 1.414f;
 	// UCT: (Upper confidence bound)
-    // wins / simulations + c * sqrt(ln(Parent Simulations) / simulations)
+    // wins / simulations + exploration_parameter * sqrt(ln(Parent Simulations) / simulations)
+
+	const float exploration_parameter = 1.414f;	// sqrt(2)
 
 	return ((node->parent->player == node->player) ? 1 : -1) * node->score / (float)node->simulations
 		+ exploration_parameter * sqrtf(logf(node->parent->simulations) / node->simulations);
@@ -80,7 +82,7 @@ t_mcts_node* mcts_node_select_child(t_mcts_node* node, const t_vars* v)
 	if (game_winner(v, node->state))	// TODOOOOO: Cache variable, VERY IMPORTANT
 		return node;
 	
-	if (node->children.count == ~0)	// Check if we have not yet initialized them
+	if (node->children.data == NULL)	// Check if we have not yet initialized them
 	{
 		if (!list_init(&node->children, sizeof(t_mcts_node*)))
 			return NULL;
