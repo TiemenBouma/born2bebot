@@ -8,6 +8,8 @@
 # include <stdlib.h>
 #endif
 
+
+
 int	make_random_move(t_vars *v, t_move *next_move, t_gameinput *g, t_my_chips_data *mine)
 {
 	next_move->type = drop;
@@ -105,24 +107,25 @@ t_gamestate*	create_gamestates(t_vars *v, t_gamestate *src, int amount)
 	return result;
 }
 
-void    *bot(void *ptr)
+void	*bot(void *ptr)
 {
 	t_vars*		v = (t_vars *)ptr;
-	const int	amount_moves = v->chips_data.mine.choices * (v->gameinput.grid_size * 2 - 1) + 6;
-				// dprintf(2, "there are [%d] moves\n", amount_moves);
+	v->current.amount_possible_moves = v->chips_data.mine.choices * (v->gameinput.grid_size * 2 - 1) + 6;	// dprintf(2, "there are [%d] moves\n", amount_moves);
 
 	make_random_move(v, &v->next_move, &v->gameinput, &v->chips_data.mine);
-	t_gamestate *result = create_gamestates(v, &v->current, amount_moves);		//free that (deep)stuff
+	v->current.deeper = create_gamestates(v, &v->current, v->current.amount_possible_moves);		//free that (deep)stuff
 
 	int highest_rating = INT_MIN;
-	for (int i = 0; i < amount_moves; i++)
+	for (int i = 0; i < v->current.amount_possible_moves; i++)
 	{
-		if (result[i].rating > highest_rating && result[i].move.type == drop)
+		if (v->current.deeper[i].rating > highest_rating && v->current.deeper[i].move.type == drop)
 		{
-			highest_rating = result[i].rating;
-			set_next_move(&v->next_move, &result[i].move);
+			highest_rating = v->current.deeper[i].rating;
+			set_next_move(&v->next_move, &v->current.deeper[i].move);
 		}
 	}
+	
+	free_gamestates(v);
 	v->end_of_turn = true;
 	pthread_exit(NULL);
 	return NULL;

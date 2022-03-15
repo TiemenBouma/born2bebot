@@ -1,11 +1,12 @@
 NAME	=	born2bebot
-CFLAGS	=	-Wall -Wextra -Werror -pedantic $(WNO) -fsanitize=address -g
+CFLAGS	=	-Wall -Wextra -Werror -pedantic $(WNO) $(SANI)
+SANI	=	-fsanitize=address -g
 WNO		=	-Wno-unused-variable -Wno-unused-parameter -Wno-unused-function -Wno-unused-private-field
 
 IDIR	=	inc
 SDIR	=	src
 
-_SRC	=	main utils timer bot input init logic
+_SRC	=	main utils timer bot input init logic free
 
 SRC		=	$(addsuffix .c, $(addprefix $(SDIR)/, $(_SRC)))
 
