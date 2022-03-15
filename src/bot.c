@@ -111,6 +111,7 @@ void	copy_moves_to_gamestate(t_vars *v, t_move *legal_moves, t_gamestate *gamest
 		memcpy(&gamestates[i].move, &legal_moves[i], sizeof(t_move));
 		process_move(v, &gamestates[i], &gamestates[i].move);
 		gamestates[i].rating = rate_gamestate(v, &gamestates[i]);
+		gamestates[i].turn = !gamestates[i].turn;
 	}
 }
 
