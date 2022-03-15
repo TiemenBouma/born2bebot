@@ -64,15 +64,26 @@ int	rate_gamestate(t_vars *v, t_gamestate *gamestate)
 		// dprintf(2, "we will lose if we play in col: [%d]\n", gamestate->move.column);
 		return INT_MIN;
 	}
-	if (is_my_color(&v->gameinput, color))
+	// if (gamestate->turn == 0)
 	{
-		// dprintf(2, "we can win a game: play color: [%d] in col: [%d]\n", color, gamestate->move.column);
-		return INT_MAX;
+		if (is_my_color(&v->gameinput, color))
+		{
+			// dprintf(2, "we can win a game: play color: [%d] in col: [%d]\n", color, gamestate->move.column);
+			return INT_MAX;
+		}
 	}
-	if (is_opp_color(&v->gameinput, color))
+	// if (gamestate->turn == 1)
 	{
-		return INT_MIN;
+		if (is_opp_color(&v->gameinput, color))
+		{
+			// dprintf(2, "we can win a game: play color: [%d] in col: [%d]\n", color, gamestate->move.column);
+			return INT_MIN;
+		}
 	}
+	// if (is_opp_color(&v->gameinput, color))
+	// {
+	// 	return INT_MIN;
+	// }
 	return 0;
 }
 
@@ -99,24 +110,24 @@ void	set_rotate_move(t_move *dst, int direction)
 	memcpy(dst, &tmp, sizeof(t_move));
 }
 
-t_move*	get_legal_moves(t_vars *v, int amount_moves)
+t_move*	get_legal_moves(t_vars *v, int amount_moves, int color1, int color2)
 {
 	t_move* result = calloc(amount_moves, sizeof(t_move));
 
 	const int	amount_of_columns = v->gameinput.grid_size * 2 - 1;
 
 	int i = 0;
-	int col = v->gameinput.min_column;
-	for (; i < amount_of_columns; ++i, ++col)
+	int column = v->gameinput.min_column;
+	for (; i < amount_of_columns; ++i, ++column)
 	{
-		set_drop_move(&result[i], col, v->chips_data.mine.drawn_chips[0]);
+		set_drop_move(&result[i], column, color1);
 	}
-	col = v->gameinput.min_column;
-	if (v->chips_data.mine.choices == 2)
+	column = v->gameinput.min_column;
+	if (color1 != color2)
 	{
-		for (; i < 2 * amount_of_columns; ++i, ++col)
+		for (; i < 2 * amount_of_columns; ++i, ++column)
 		{
-			set_drop_move(&result[i], col, v->chips_data.mine.drawn_chips[1]);
+			set_drop_move(&result[i], column, color2);
 		}
 	}
 	int direction = 0;
@@ -124,6 +135,10 @@ t_move*	get_legal_moves(t_vars *v, int amount_moves)
 	{
 		set_rotate_move(&result[i], direction);
 	}
+	// for (int i = 0; i < amount_moves; i++)
+	// {
+	// 	dprintf(2, "type = [%d], col = [%d], color = [%d], dir = [%d]\n", result[i].type, result[i].column, result[i].color, result[i].direction);
+	// }
 	return result;
 }
 
@@ -151,6 +166,7 @@ void	search_best_move(t_vars *v)
 
 	for (int i = 0; i < v->current.amount_possible_moves; ++i)
 	{
+		dprintf(2, "rating i = %d: %d\n", i, v->current.deeper[i].rating);
 		if (v->current.deeper[i].rating > highest_rating)
 		{
 			highest_rating = v->current.deeper[i].rating;
@@ -169,15 +185,52 @@ void	search_best_move(t_vars *v)
 void	*bot(void *ptr)
 {
 	t_vars*		v = (t_vars *)ptr;
+	int			opp_amount_moves = 2 * (v->gameinput.grid_size * 2 - 1) + 6;
 	// v->current.amount_possible_moves = count_possible_moves(v, &v->current);
 	v->current.amount_possible_moves = v->chips_data.mine.choices * (v->gameinput.grid_size * 2 - 1) + 6;	// dprintf(2, "there are [%d] moves\n", amount_moves);
 
 	v->current.deeper = clone_gamestates(v, &v->current, v->current.amount_possible_moves);
-	t_move *legal_moves = get_legal_moves(v, v->current.amount_possible_moves);
+	t_move *legal_moves = get_legal_moves(v, v->current.amount_possible_moves, v->chips_data.mine.drawn_chips[0], v->chips_data.mine.drawn_chips[1]);
 	copy_moves_to_gamestate(v, legal_moves, v->current.deeper, v->current.amount_possible_moves);
 	free(legal_moves);
  // we hebben nu een array van gamestates voor onze eigen mogelijkheden
  // we gaan voor iedere mogelijkheid kijken wat voor invloed het heeft op de winkans van de tegenstander
+
+	for (int i = 0; i < v->current.amount_possible_moves; i++)
+	{
+		//dprintf(2, "index %d:\n", i);
+		if (v->current.deeper[i].rating == INT_MAX)
+			break ;
+		v->current.deeper[i].amount_possible_moves = opp_amount_moves;
+		v->current.deeper[i].deeper = clone_gamestates(v, &v->current.deeper[i], opp_amount_moves);
+		int opp_id = !v->gameinput.player_id;
+		t_move *opp_legal_moves = get_legal_moves(v, opp_amount_moves, opp_id * 2, opp_id * 2 + 1);
+		copy_moves_to_gamestate(v, opp_legal_moves, v->current.deeper[i].deeper, opp_amount_moves);
+		// for (int j = 0; j < amount_moves; j++)
+		// {
+		// 	dprintf(2, "index j %d: column: <%d>, \n", i, v->current.deeper[i].deeper[j].move.column);
+		// }
+		free(opp_legal_moves);
+	}
+	//exit(0);
+	//int highest_rating = INT_MIN;
+	int highest_rating_opp;
+	//int opp_moves;
+	// we zoeken of de tegenstander een int_max rating heeft
+	for (int i = 0; i < v->current.amount_possible_moves; i++)
+	{
+		if (v->current.deeper[i].rating == INT_MAX)
+			break ;
+		for (int j = 0; j < opp_amount_moves; j++)
+		{
+			if (v->current.deeper[i].deeper[j].rating == INT_MIN)
+			{
+				v->current.deeper[i].rating = INT_MIN;
+				break ;
+				
+			}		
+		}
+	}
 
 	//deze functie
 	search_best_move(v);
