@@ -1,13 +1,13 @@
 NAME	=	born2bebot
 CFLAGS	=	-Wall -Wextra -Werror -pedantic $(WNO) -fsanitize=address -g -Llibft -lft
-WNO		=	-Wno-unused-variable -Wno-unused-parameter -Wno-unused-function -Wno-unused-private-field
+WNO		=	-Wno-unused-variable -Wno-unused-parameter -Wno-unused-function -Wno-unused-private-field -Wno-newline-eof
 
 IDIR	=	inc
 SDIR	=	src
 
 IDIRFT	=	libft/include
 
-_SRC	=	main utils timer bot input init logic mcts/mcts
+_SRC	=	main utils timer bot input init logic mcts/mcts mcts/mcts_node
 
 SRC		=	$(addsuffix .c, $(addprefix $(SDIR)/, $(_SRC)))
 

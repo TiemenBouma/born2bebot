@@ -139,7 +139,7 @@ t_tile*	game_get(t_vars *v, t_gamestate *g, int q, int r, int s);
 void 	compute_pos(int pos, int size, int gravity, int *q, int *r, int *s);
 
 bool	process_move(t_vars *v, t_gamestate *g, t_move *m);
-int		game_winner(t_vars *v, t_gamestate *g);
+int		game_winner(const t_vars *v, const t_gamestate *g);
 void	init_gamestate(t_vars *v, t_gamestate *g);
 void	copy_gamestate(t_vars *v, t_gamestate *dst, t_gamestate *src);
 

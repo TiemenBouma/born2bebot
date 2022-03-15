@@ -64,7 +64,7 @@ void compute_pos(int pos, int size, int gravity, int *q, int *r, int *s)
 	}
 }
 
-int game_winner(t_vars *v, t_gamestate *g)
+int game_winner(const t_vars *v, const t_gamestate *g)
 {
 	int best_length = 0;
 	int best_value = -1;
