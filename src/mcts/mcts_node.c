@@ -11,11 +11,7 @@ t_mcts_node* mcts_node_new(const t_gamestate* game_state)
 	node->parent = NULL;
 	node->player = 1;	// TODO: Get active player of game state
 
-	if (!list_init(&node->children, sizeof(t_mcts_node*)))
-	{
-		free(node);
-		return NULL;
-	}
+	node->children.count = ~0;	// Don't init children yet
 
 	node->simulations = 0;
 	node->score = 0;
@@ -33,11 +29,7 @@ t_mcts_node* mcts_node_new_child(t_mcts_node* parent, const t_gamestate* game_st
 	node->parent = parent;
 	node->player = parent->player * -1;	// TODO: Get active player of game state
 
-	if (!list_init(&node->children, sizeof(t_mcts_node*)))
-	{
-		free(node);
-		return NULL;
-	}
+	node->children.count = ~0;	// Don't init children yet
 
 	node->simulations = 0;
 	node->score = 0;
@@ -88,8 +80,10 @@ t_mcts_node* mcts_node_select_child(t_mcts_node* node, const t_vars* v)
 	if (game_winner(v, node->state))	// TODOOOOO: Cache variable, VERY IMPORTANT
 		return node;
 	
-	if (node->children.count == 0)	// If we have 0 children, we have not yet initialized them, cause if we have no valid moves then this is a end state, thus we would have returned already
+	if (node->children.count == ~0)	// Check if we have not yet initialized them
 	{
+		if (!list_init(&node->children, sizeof(t_mcts_node*)))
+			return NULL;
 		// TODO: Get possible moves & add them to children
 	}
 
@@ -111,5 +105,6 @@ t_mcts_node* mcts_node_select_child(t_mcts_node* node, const t_vars* v)
 		}
 	}
 
+	// NOTE: if best is NULL here, then there was no winner, but also no next moves
 	return mcts_node_select_child(best, v);
 }
