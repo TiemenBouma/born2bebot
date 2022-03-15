@@ -97,10 +97,13 @@ struct s_tile
 typedef struct s_gamestate t_gamestate;
 struct s_gamestate
 {
-	t_tile*			tile;					//array of hexagon tiles
+	t_tile*			tile;						//array of hexagon tiles
 	t_grav			gravity;
 	t_move			move;
 	int				rating;
+	int				amount_possible_moves;	
+	t_gamestate*	deeper;						//next depth, array with size of amount_possible_moves
+
 	// size_t			amount_legal_moves;		//the num of legal moves at this gamestate
 	// t_move*			legal_moves;			//array of all legal moves;
 	// t_gamestate*	potential_gamestate;	//array of potental gamestate, if a move was played
@@ -142,5 +145,8 @@ bool	process_move(t_vars *v, t_gamestate *g, t_move *m);
 int		game_winner(const t_vars *v, const t_gamestate *g);
 void	init_gamestate(t_vars *v, t_gamestate *g);
 void	copy_gamestate(t_vars *v, t_gamestate *dst, t_gamestate *src);
+
+/*		free.c	*/
+void	free_gamestates(t_vars *v);
 
 #endif

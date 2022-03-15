@@ -7,7 +7,7 @@ SDIR	=	src
 
 IDIRFT	=	libft/include
 
-_SRC	=	main utils timer bot input init logic mcts/mcts mcts/mcts_node
+_SRC	=	main utils timer bot input init logic free mcts/mcts mcts/mcts_node
 
 SRC		=	$(addsuffix .c, $(addprefix $(SDIR)/, $(_SRC)))
 
