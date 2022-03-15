@@ -31,12 +31,6 @@ enum e_move_type
 	//fetch?
 };
 
-enum e_turn
-{
-	our_turn,
-	opp_turn
-};
-
 typedef enum e_gravity_direction
 {
 	top,
@@ -103,7 +97,7 @@ struct s_tile
 typedef struct s_gamestate t_gamestate;
 struct s_gamestate
 {
-	enum e_turn		turn;						//0 == our turn, 1 == opponents turn
+	int				turn;						//0 == our turn, 1 == opponents turn
 	t_tile*			tile;						//array of hexagon tiles
 	t_grav			gravity;
 	t_move			move;

@@ -14,7 +14,6 @@ int	make_random_move(t_vars *v, t_move *next_move, t_gameinput *g, t_my_chips_da
 {
 	next_move->type = drop;
 	next_move->color = mine->drawn_chips[arc4random_uniform(2)];
-	// dprintf(2, "min col: [%d], max col [%d]\n", g->min_column, g->max_column);
 	next_move->column = arc4random_uniform(2 * g->max_column + 1) - g->max_column;
 
 	if (!is_empty(v, &v->current, next_move->column))
@@ -62,13 +61,13 @@ t_gamestate*	clone_gamestates(t_vars *v, t_gamestate *src, int amount_gamestates
 	return result;
 }
 
-void	set_drop_move(t_vars *v, t_move *dst, int col, int chip_color)
+void	set_drop_move(t_move *dst, int col, int chip_color)
 {
 	t_move tmp = {drop, col, chip_color, 0};
 	memcpy(dst, &tmp, sizeof(t_move));
 }
 
-void	set_rotate_move(t_vars *v, t_move *dst, int direction)
+void	set_rotate_move(t_move *dst, int direction)
 {
 	t_move tmp = {rotate, 0, 0, direction};
 	memcpy(dst, &tmp, sizeof(t_move));
@@ -79,27 +78,25 @@ t_move*	get_legal_moves(t_vars *v, int amount_moves)
 	t_move* result = calloc(amount_moves, sizeof(t_move));
 
 	const int	amount_of_columns = v->gameinput.grid_size * 2 - 1;
-	const int	amount_of_color_choices = v->chips_data.mine.choices;
-	const int	amount_of_rotations = 6;
 
 	int i = 0;
 	int col = v->gameinput.min_column;
 	for (; i < amount_of_columns; ++i, ++col)
 	{
-		set_drop_move(v, &result[i], col, v->chips_data.mine.drawn_chips[0]);
+		set_drop_move(&result[i], col, v->chips_data.mine.drawn_chips[0]);
 	}
 	col = v->gameinput.min_column;
 	if (v->chips_data.mine.choices == 2)
 	{
 		for (; i < 2 * amount_of_columns; ++i, ++col)
 		{
-			set_drop_move(v, &result[i], col, v->chips_data.mine.drawn_chips[1]);
+			set_drop_move(&result[i], col, v->chips_data.mine.drawn_chips[1]);
 		}
 	}
 	int direction = 0;
 	for (; i < amount_moves; ++i, ++direction)
 	{
-		set_rotate_move(v, &result[i], direction);
+		set_rotate_move(&result[i], direction);
 	}
 	return result;
 }
@@ -109,24 +106,23 @@ void	copy_moves_to_gamestate(t_vars *v, t_move *legal_moves, t_gamestate *gamest
 	for (int i = 0; i < amount; ++i)
 	{
 		memcpy(&gamestates[i].move, &legal_moves[i], sizeof(t_move));
-		process_move(v, &gamestates[i], &gamestates[i].move);
-		gamestates[i].rating = rate_gamestate(v, &gamestates[i]);
+		if (is_empty(v, &gamestates[i], gamestates[i].move.column))
+		{
+			process_move(v, &gamestates[i], &gamestates[i].move);
+			gamestates[i].rating = rate_gamestate(v, &gamestates[i]);
+		}
+		else
+		{
+			gamestates[i].rating = INT_MIN;
+		}
 		gamestates[i].turn = !gamestates[i].turn;
 	}
 }
 
-void	*bot(void *ptr)
+void	search_best_move(t_vars *v)
 {
-	t_vars*		v = (t_vars *)ptr;
-	v->current.amount_possible_moves = v->chips_data.mine.choices * (v->gameinput.grid_size * 2 - 1) + 6;	// dprintf(2, "there are [%d] moves\n", amount_moves);
-
-
-	v->current.deeper = clone_gamestates(v, &v->current, v->current.amount_possible_moves);
-	t_move *legal_moves = get_legal_moves(v, v->current.amount_possible_moves);
-	copy_moves_to_gamestate(v, legal_moves, v->current.deeper, v->current.amount_possible_moves);
-	free(legal_moves);
-
 	int highest_rating = INT_MIN;
+
 	for (int i = 0; i < v->current.amount_possible_moves; ++i)
 	{
 		if (v->current.deeper[i].rating > highest_rating)
@@ -135,10 +131,28 @@ void	*bot(void *ptr)
 			set_next_move(&v->next_move, &v->current.deeper[i].move);
 		}
 	}
-
-
 	if (highest_rating == 0)
 		make_random_move(v, &v->next_move, &v->gameinput, &v->chips_data.mine);
+}
+
+// int	count_possible_moves(t_vars *v, t_gamestate *g)
+// {
+
+// }
+
+void	*bot(void *ptr)
+{
+	t_vars*		v = (t_vars *)ptr;
+	// v->current.amount_possible_moves = count_possible_moves(v, &v->current);
+	v->current.amount_possible_moves = v->chips_data.mine.choices * (v->gameinput.grid_size * 2 - 1) + 6;	// dprintf(2, "there are [%d] moves\n", amount_moves);
+
+	v->current.deeper = clone_gamestates(v, &v->current, v->current.amount_possible_moves);
+	t_move *legal_moves = get_legal_moves(v, v->current.amount_possible_moves);
+	copy_moves_to_gamestate(v, legal_moves, v->current.deeper, v->current.amount_possible_moves);
+	free(legal_moves);
+
+	search_best_move(v);
+
 	free_all_gamestates(v);
 	v->end_of_turn = true;
 	pthread_exit(NULL);
