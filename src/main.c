@@ -32,7 +32,8 @@ void	output(t_move* next_move)
 }
 
 void	update_chips_data(t_my_chips_data *mine, t_move *m)
-{//we got nothing here so far
+{
+	//we got nothing here so far
 	switch (m->type)
 	{
 		case drop:
