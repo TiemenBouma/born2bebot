@@ -227,14 +227,12 @@ void	*bot(void *ptr)
 			{
 				v->current.deeper[i].rating = INT_MIN;
 				break ;
-				
 			}		
 		}
 	}
 
 	//deze functie
 	search_best_move(v);
-
 
 	free_all_gamestates(v);
 	v->end_of_turn = true;
