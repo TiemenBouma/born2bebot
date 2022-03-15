@@ -143,4 +143,7 @@ int		game_winner(t_vars *v, t_gamestate *g);
 void	init_gamestate(t_vars *v, t_gamestate *g);
 void	copy_gamestate(t_vars *v, t_gamestate *dst, t_gamestate *src);
 
+
+int	win_check_all_tiles(t_vars *v, t_gamestate *g);
+
 #endif

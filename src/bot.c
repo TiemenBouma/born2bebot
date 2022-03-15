@@ -40,7 +40,7 @@ t_gamestate*	create_gamestates(t_vars *v, t_gamestate *src, int amount)
 		t_move m = {drop, i - (v->gameinput.grid_size - 1), v->chips_data.mine.drawn_chips[0], 0};
 		memcpy(&result[i].move, &m, sizeof(t_move));
 		process_move(v, &result[i], &m);
-		int color = game_winner(v, &result[i]);
+		int color = win_check_all_tiles(v, &result[i]);
 		// dprintf(2, "color = [%d]\n", color);
 		if (is_my_color(&v->gameinput, color))
 		{
@@ -66,7 +66,7 @@ t_gamestate*	create_gamestates(t_vars *v, t_gamestate *src, int amount)
 			memcpy(&result[i].move, &m, sizeof(t_move));
 			// dprintf(2, "move col: [%d]\n", i - 2 * (v->gameinput.grid_size - 1));
 			process_move(v, &result[i], &m);
-			int color = game_winner(v, &result[i]);
+			int color = win_check_all_tiles(v, &result[i]);
 			// dprintf(2, "color = [%d]\n", color);
 			if (is_my_color(&v->gameinput, color))
 			{
@@ -88,7 +88,7 @@ t_gamestate*	create_gamestates(t_vars *v, t_gamestate *src, int amount)
 		t_move m = {rotate, 0, 0, dir};
 		memcpy(&result[i].move, &m, sizeof(t_move));
 		process_move(v, &result[i], &m);
-		int color = game_winner(v, &result[i]);
+		int color = win_check_all_tiles(v, &result[i]);
 		// dprintf(2, "color = [%d]\n", color);
 		if (is_my_color(&v->gameinput, color))
 		{
