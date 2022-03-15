@@ -129,7 +129,6 @@ void	init(t_vars *v)
 	setbuf(stderr, NULL);
 	get_gameinput(&v->gameinput);
 	v->chips_data.opp.remaining_chips = 2 * v->gameinput.chips_per_color;
-	v->gameinput.win_length = 4;
 	v->gameinput.max_column = v->gameinput.grid_size - 1;
 	v->gameinput.min_column = -v->gameinput.max_column;
 	v->gameinput.amount_of_tiles = 3 * pow(v->gameinput.grid_size, 2) - 3 * v->gameinput.grid_size + 1;
