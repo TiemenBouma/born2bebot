@@ -33,6 +33,7 @@ t_gamestate*	create_gamestates(t_vars *v, t_gamestate *src, int amount)
 	t_gamestate*	result = calloc(amount, sizeof(t_gamestate));
 
 	int i = 0;
+	//check color 1
 	for ((void)NULL; i < v->gameinput.grid_size * 2 - 1; ++i)
 	{
 		// dprintf(2, "i = [%d]\n", i);
@@ -56,6 +57,7 @@ t_gamestate*	create_gamestates(t_vars *v, t_gamestate *src, int amount)
 	}
 	// dprintf(2, "moving to next one (1)\n");
 	// dprintf(2, "-----------min col = [%d]\n", v->gameinput.min_column);
+	//check color2
 	if (v->chips_data.mine.choices == 2)
 	{
 		for (int _col = v->gameinput.min_column; i < 2 * (v->gameinput.grid_size * 2 - 1); ++i, _col++)
@@ -112,15 +114,56 @@ void    *bot(void *ptr)
 				// dprintf(2, "there are [%d] moves\n", amount_moves);
 
 	make_random_move(v, &v->next_move, &v->gameinput, &v->chips_data.mine);
-	t_gamestate *result = create_gamestates(v, &v->current, amount_moves);		//free that (deep)stuff
+	t_gamestate *result = create_gamestates(v, &v->current, amount_moves);
+	t_gamestate *result_opp[amount_moves];
+	t_move *best_move_opp;	
+	//free that (deep)stuff
 
 	int highest_rating = INT_MIN;
-	for (int i = 0; i < amount_moves; i++)
+	//dprintf(2, "IN BOT[%d]\n", highest_rating);
+	int highest_rating_opp;
+	int opp_moves;
+	for (int my_moves = 0; my_moves < amount_moves; my_moves++)
 	{
-		if (result[i].rating > highest_rating && result[i].move.type == drop)
+		if (result[my_moves].rating < INT_MAX && result[my_moves].rating > INT_MIN) 
 		{
-			highest_rating = result[i].rating;
-			set_next_move(&v->next_move, &result[i].move);
+			result_opp[my_moves] = create_gamestates(v, &result[my_moves], amount_moves);
+			highest_rating_opp = INT_MIN;
+			opp_moves = 0;
+			while (opp_moves < amount_moves) 
+			{
+				if (result_opp[my_moves][opp_moves].rating > highest_rating_opp && result_opp[my_moves][opp_moves].move.type == drop)
+				{
+					highest_rating_opp = result_opp[my_moves][opp_moves].rating;
+					best_move_opp = &result_opp[my_moves][opp_moves].move;
+				}
+				opp_moves++;
+			}
+			// if (highest_rating_opp == INT_MAX && result_opp[my_moves][opp_moves].move.type == drop)
+			// {
+			// 	set_next_move(&v->next_move, &result_opp[my_moves][opp_moves].move);
+			// 	result[my_moves].rating = (highest_rating_opp) * -1;
+			// 	dprintf(2, "doing the trick\n");
+			// 	break ;
+			// }
+			if (highest_rating_opp > result[my_moves].rating)
+			{
+				result[my_moves].rating = (highest_rating_opp) * -1; // (of INT_MIN )als rating van opponent hoger is dan die van ons word de rating geflipt in onze rating gestopt.
+				//set_next_move(&v->next_move, best_move_opp);
+			// 	dprintf(2, "NA berekening[%d]\n", result[my_moves].rating);
+			// 	//dprintf(2, "\n\nPRINTF|%d|\n\n", (void *)&result_opp[my_moves][opp_moves]);
+			}
+		}
+		// if (!is_empty(v, &result[my_moves], result[my_moves].move.column /*next_move->column */))
+		// 	result[my_moves].rating = INT_MIN;
+		if (result[my_moves].rating > highest_rating && result[my_moves].move.type == drop)
+		{
+			highest_rating = result[my_moves].rating;
+			if (highest_rating > 0)
+			{
+				set_next_move(&v->next_move, &result[my_moves].move);
+			}
+			//dprintf(2, "NA berekening[%d]\n", highest_rating);
 		}
 	}
 	v->end_of_turn = true;
