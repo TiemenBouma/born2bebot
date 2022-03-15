@@ -35,7 +35,7 @@ enum e_turn
 {
 	our_turn,
 	opp_turn
-}
+};
 
 typedef enum e_gravity_direction
 {
@@ -154,6 +154,7 @@ void	init_gamestate(t_vars *v, t_gamestate *g);
 void	copy_gamestate(t_vars *v, t_gamestate *dst, t_gamestate *src);
 
 /*		free.c	*/
-void	free_gamestates(t_vars *v);
+void	free_gamestate(t_vars *v, t_gamestate *g);
+void	free_all_gamestates(t_vars *v);
 
 #endif
