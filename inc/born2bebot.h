@@ -97,6 +97,7 @@ struct s_tile
 typedef struct s_gamestate t_gamestate;
 struct s_gamestate
 {
+	int				turn;						//0 == our turn, 1 == opponents turn
 	t_tile*			tile;						//array of hexagon tiles
 	t_grav			gravity;
 	t_move			move;
@@ -147,6 +148,7 @@ void	init_gamestate(t_vars *v, t_gamestate *g);
 void	copy_gamestate(t_vars *v, t_gamestate *dst, t_gamestate *src);
 
 /*		free.c	*/
-void	free_gamestates(t_vars *v);
+void	free_gamestate(t_vars *v, t_gamestate *g);
+void	free_all_gamestates(t_vars *v);
 
 #endif
