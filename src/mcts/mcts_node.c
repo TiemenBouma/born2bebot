@@ -23,7 +23,7 @@ t_mcts_node* mcts_node_new(const t_gamestate* game_state)
 	return node;
 }
 
-t_mcts_node* mcts_node_new_child(t_mcts_node* parent, const t_gamestate* game_state, int player)
+t_mcts_node* mcts_node_new_child(t_mcts_node* parent, const t_gamestate* game_state)
 {
 	t_mcts_node* node = malloc(sizeof(t_mcts_node));
 	if (!node)
