@@ -9,6 +9,13 @@
 #endif
 
 
+void	set_next_move(t_move *next_move, t_move *src)
+{
+	next_move->type = src->type;
+	next_move->column = src->column;
+	next_move->color = src->color;
+	next_move->direction = src->direction;
+}
 
 int	make_random_move(t_vars *v, t_move *next_move, t_gameinput *g, t_my_chips_data *mine)
 {
@@ -21,13 +28,32 @@ int	make_random_move(t_vars *v, t_move *next_move, t_gameinput *g, t_my_chips_da
 	return 0;
 }
 
-void	set_next_move(t_move *next_move, t_move *src)
+int	make_random_of_highest_rating_move(t_vars *v, t_move *next_move, int highest_rating)
 {
-	next_move->type = src->type;
-	next_move->column = src->column;
-	next_move->color = src->color;
-	next_move->direction = src->direction;
+	int choice;
+	int count = 0;
+	for (int i = 0; i < v->current.amount_possible_moves; i++)
+	{
+		if (v->current.deeper[i].rating == highest_rating && v->current.deeper[i].move.type == drop)
+			count++;
+	}
+	choice = arc4random_uniform(count);
+	count = 0;
+	for (int i = 0; i < v->current.amount_possible_moves; i++)
+	{
+		if (v->current.deeper[i].rating == highest_rating && v->current.deeper[i].move.type == drop)
+		{
+			if (count == choice)
+			{
+				set_next_move(&v->next_move, &v->current.deeper[i].move);
+				break ;
+			}
+			count++;
+		}	
+	}
+	return 0;
 }
+
 
 int	rate_gamestate(t_vars *v, t_gamestate *gamestate)
 {
@@ -132,7 +158,7 @@ void	search_best_move(t_vars *v)
 		}
 	}
 	if (highest_rating == 0)
-		make_random_move(v, &v->next_move, &v->gameinput, &v->chips_data.mine);
+		make_random_of_highest_rating_move(v, &v->next_move, highest_rating);
 }
 
 // int	count_possible_moves(t_vars *v, t_gamestate *g)
@@ -150,8 +176,12 @@ void	*bot(void *ptr)
 	t_move *legal_moves = get_legal_moves(v, v->current.amount_possible_moves);
 	copy_moves_to_gamestate(v, legal_moves, v->current.deeper, v->current.amount_possible_moves);
 	free(legal_moves);
+ // we hebben nu een array van gamestates voor onze eigen mogelijkheden
+ // we gaan voor iedere mogelijkheid kijken wat voor invloed het heeft op de winkans van de tegenstander
 
+	//deze functie
 	search_best_move(v);
+
 
 	free_all_gamestates(v);
 	v->end_of_turn = true;
