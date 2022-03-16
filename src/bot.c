@@ -187,7 +187,7 @@ void	*bot(void *ptr)
 		free(opp_legal_moves);
 	}
 	search_best_move(v);
-	// we zoeken of de tegenstander een -1000 rating heeft (winst als wij een bepaalde actie uitvoeren)
+
 	for (int i = 0; i < v->current.amount_possible_moves; i++)
 	{
 		if (v->current.deeper[i].rating == INT_MAX)
@@ -204,8 +204,6 @@ void	*bot(void *ptr)
 			}		
 		}
 	}
-
-	//deze functie kiest uit de ratings een goede zet
 	search_best_move(v);
 
 	free_all_gamestates(v);
