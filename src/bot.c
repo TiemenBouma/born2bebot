@@ -108,7 +108,7 @@ t_move*	get_legal_moves(t_vars *v, int amount_moves, int color1, int color2)
 	column = v->gameinput.min_column;
 	if (color1 != color2)
 	{
-		for (; i < 2 * amount_of_columns; ++i, ++column)
+		for (; i < 2 * amount_of_columns && i < amount_moves; ++i, ++column)
 		{
 			set_drop_move(&result[i], column, color2);
 		}
