@@ -186,6 +186,7 @@ void	*bot(void *ptr)
 		copy_moves_to_gamestate(v, opp_legal_moves, v->current.deeper[i].deeper, opp_amount_moves);
 		free(opp_legal_moves);
 	}
+	search_best_move(v);
 	// we zoeken of de tegenstander een -1000 rating heeft (winst als wij een bepaalde actie uitvoeren)
 	for (int i = 0; i < v->current.amount_possible_moves; i++)
 	{
