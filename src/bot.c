@@ -29,17 +29,12 @@ int	make_random_move(t_vars *v, t_move *next_move, t_gameinput *g, t_my_chips_da
 	return 0;
 }
 
-int	make_random_of_highest_rating_move(t_vars *v, t_move *next_move, int highest_rating)
+int	make_random_of_highest_rating_move(t_vars *v, t_move *next_move, int highest_rating, int occurence_highest)
 {
 	int choice;
 	int count = 0;
-	for (int i = 0; i < v->current.amount_possible_moves; i++)
-	{
-		if (v->current.deeper[i].rating == highest_rating && v->current.deeper[i].move.type == drop)
-			count++;
-	}
-	choice = arc4random_uniform(count);
-	count = 0;
+
+	choice = arc4random_uniform(occurence_highest);
 	for (int i = 0; i < v->current.amount_possible_moves; i++)
 	{
 		if (v->current.deeper[i].rating == highest_rating && v->current.deeper[i].move.type == drop)
@@ -50,7 +45,7 @@ int	make_random_of_highest_rating_move(t_vars *v, t_move *next_move, int highest
 				break ;
 			}
 			count++;
-		}	
+		}
 	}
 	return 0;
 }
@@ -62,29 +57,16 @@ int	rate_gamestate(t_vars *v, t_gamestate *gamestate)
 
 	if (!is_empty(v, gamestate, gamestate->move.column))
 	{
-		// dprintf(2, "we will lose if we play in col: [%d]\n", gamestate->move.column);
 		return INT_MIN;
 	}
-	// if (gamestate->turn == 0)
+	if (is_my_color(&v->gameinput, color))
 	{
-		if (is_my_color(&v->gameinput, color))
-		{
-			//dprintf(2, "we can win a game: play color: [%d] in col: [%d]\n", color, gamestate->move.column);
-			return INT_MAX;
-		}
+		return INT_MAX;
 	}
-	// if (gamestate->turn == 1)
+	if (is_opp_color(&v->gameinput, color))
 	{
-		if (is_opp_color(&v->gameinput, color))
-		{
-			//dprintf(2, "we can lose a game: play color: [%d] in col: [%d]\n", color, gamestate->move.column);
-			return -1000;
-		}
+		return -1000;
 	}
-	// if (is_opp_color(&v->gameinput, color))
-	// {
-	// 	return INT_MIN;
-	// }
 	return 0;
 }
 
@@ -160,6 +142,7 @@ void	copy_moves_to_gamestate(t_vars *v, t_move *legal_moves, t_gamestate *gamest
 void	search_best_move(t_vars *v)
 {
 	int highest_rating = INT_MIN;
+	int occurence_highest = 0;
 
 	for (int i = 0; i < v->current.amount_possible_moves; ++i)
 	{
@@ -168,10 +151,13 @@ void	search_best_move(t_vars *v)
 		{
 			highest_rating = v->current.deeper[i].rating;
 			set_next_move(&v->next_move, &v->current.deeper[i].move);
+			occurence_highest = 1;
 		}
+		else if (v->current.deeper[i].rating == highest_rating)
+			occurence_highest++;
 	}
-	if (highest_rating == 0)
-		make_random_of_highest_rating_move(v, &v->next_move, highest_rating);
+	if (occurence_highest > 1)
+		make_random_of_highest_rating_move(v, &v->next_move, highest_rating, occurence_highest);
 }
 
 void	*bot(void *ptr)
@@ -186,8 +172,7 @@ void	*bot(void *ptr)
 	t_move *legal_moves = get_legal_moves(v, v->current.amount_possible_moves, v->chips_data.mine.drawn_chips[0], v->chips_data.mine.drawn_chips[1]);
 	copy_moves_to_gamestate(v, legal_moves, v->current.deeper, v->current.amount_possible_moves);
 	free(legal_moves);
- // we hebben nu een array van gamestates voor onze eigen mogelijkheden
- // we gaan voor iedere mogelijkheid kijken wat voor invloed het heeft op de winkans van de tegenstander
+	search_best_move(v);
 
 	for (int i = 0; i < v->current.amount_possible_moves; i++)
 	{
@@ -208,9 +193,12 @@ void	*bot(void *ptr)
 			break ;
 		for (int j = 0; j < opp_amount_moves; j++)
 		{
-			if (v->current.deeper[i].deeper[j].rating == -1000)
+			if (v->current.deeper[i].deeper[j].rating == -1000 && v->current.deeper[i].rating >= 0)
 			{
-				v->current.deeper[i].rating = -1000;
+				if (v->current.deeper[i].move.type == drop)
+					v->current.deeper[i].rating = -500;
+				else
+					v->current.deeper[i].rating = -750;
 				break ;
 			}		
 		}
