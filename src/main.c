@@ -71,6 +71,7 @@ int main()
 		if (process_move(&v, &v.current, &v.next_move))
 			break;
 		update_chips_data(&v.chips_data.mine, &v.next_move);
+		set_next_move(&v.prev_move, &v.next_move);
 		increment_game_turn(&v.turn);
 	}
 	return 0;
