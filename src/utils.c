@@ -30,7 +30,7 @@ bool	is_opp_color(t_gameinput *g, int value)
 {
 	if (value < 0)
 		return false;
-	if (g->player_id == 0)
+	if (g->player_id == 1)
 	{
 		return value < g->total_number_of_colors / 2;
 	}
