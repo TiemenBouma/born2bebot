@@ -132,6 +132,7 @@ typedef struct s_vars
 	t_move			next_move;
 	t_chips_data	chips_data;
 	t_gamestate		current;
+	t_move			prev_move;
 }	t_vars;
 
 /*		functions	*/
@@ -141,6 +142,7 @@ void    *bot(void *ptr);
 
 t_tile*	game_get(t_vars *v, t_gamestate *g, int q, int r, int s);
 void 	compute_pos(int pos, int size, int gravity, int *q, int *r, int *s);
+void	set_next_move(t_move *dst, t_move *src);
 
 bool	process_move(t_vars *v, t_gamestate *g, t_move *m);
 int		game_winner(const t_vars *v, const t_gamestate *g);
