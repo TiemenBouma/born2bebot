@@ -92,6 +92,7 @@ struct s_tile
 	bool	wall;
 	int		q, r, s;
 	float	x, y;
+	int		index;
 };
 
 typedef struct s_gamestate t_gamestate;

@@ -44,7 +44,7 @@ void	timer(float timeout, volatile const bool* const end_of_turn)
     while (elapsed_us < time_limit_in_us)
     {
 		if (*end_of_turn == true)
-			return;
+			break;
         gettimeofday(&current, NULL);
         get_elapsed_time(&diff, &current, &start);
         elapsed_us = diff.tv_sec * one_million + diff.tv_usec;

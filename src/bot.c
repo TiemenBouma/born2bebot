@@ -162,12 +162,12 @@ void	search_best_move(t_vars *v)
 
 void	*bot(void *ptr)
 {
+
 	t_vars*		v = (t_vars *)ptr;
 	int			opp_amount_moves = 2 * (v->gameinput.grid_size * 2 - 1) + 6;
 	v->current.amount_possible_moves = v->chips_data.mine.choices * (v->gameinput.grid_size * 2 - 1) + 6;	// dprintf(2, "there are [%d] moves\n", amount_moves);
 
 	make_random_move(v, &v->next_move,&v->gameinput, &v->chips_data.mine);
-
 	v->current.deeper = clone_gamestates(v, &v->current, v->current.amount_possible_moves);
 	t_move *legal_moves = get_legal_moves(v, v->current.amount_possible_moves, v->chips_data.mine.drawn_chips[0], v->chips_data.mine.drawn_chips[1]);
 	copy_moves_to_gamestate(v, legal_moves, v->current.deeper, v->current.amount_possible_moves);

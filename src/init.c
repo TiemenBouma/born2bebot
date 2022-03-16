@@ -13,11 +13,34 @@ t_tile*	game_get(t_vars *v, t_gamestate *g, int q, int r, int s)
 	return NULL;
 }
 
+void    assign_neigh(t_tile* tiles, t_tile* dest, t_tile* src, size_t neigh_index)
+{
+    if (!src->neigh[neigh_index])
+	{
+        dest->neigh[neigh_index] = NULL;
+        return;
+    }
+    size_t index = src->neigh[neigh_index]->index;
+    dest->neigh[neigh_index] = &tiles[index];
+}
+
+static void copy_neigh(t_vars* v, t_gamestate *dest, t_gamestate* src)
+{
+    for (int i = 0; i < v->gameinput.amount_of_tiles; i++) 
+	{
+        t_tile* tile = &dest->tile[i];
+        for (size_t neigh = 0; neigh < 6; neigh++) {
+            assign_neigh(dest->tile, tile, &src->tile[i], neigh);
+        }
+    }
+}
+
 static void init_neigh(t_vars *v, t_gamestate *g)
 {
 	for (int i = 0; i < v->gameinput.amount_of_tiles; i += 1)
 	{
 		t_tile* dt = &g->tile[i];
+		dt->index = i;
 		dt->neigh[0] = game_get(v, g, dt->q, dt->r - 1, dt->s + 1);
 		dt->neigh[1] = game_get(v, g, dt->q + 1, dt->r - 1, dt->s);
 		dt->neigh[2] = game_get(v, g, dt->q + 1, dt->r, dt->s - 1);
@@ -58,6 +81,7 @@ static void	init_tiles(t_vars *v, t_gamestate *g)
 					t->chip.placed = false;
 					t->chip.x = t->x;
 					t->chip.y = t->y;
+					t->index = i;
 					i += 1;
 				}
 			}
@@ -65,37 +89,10 @@ static void	init_tiles(t_vars *v, t_gamestate *g)
 	}
 }
 
-static void	copy_tiles(t_vars *v, t_gamestate *g, t_gamestate *src)
+static void    copy_tiles(t_vars *v, t_gamestate *g, t_gamestate *src)
 {
-	g->tile = calloc(v->gameinput.amount_of_tiles, sizeof(t_tile));
-	int	i = 0;
-
-	for (int q = -v->gameinput.grid_size + 1; q < v->gameinput.grid_size; q += 1)
-	{
-		for (int r = -v->gameinput.grid_size + 1; r < v->gameinput.grid_size; r += 1)
-		{
-			for (int s = -v->gameinput.grid_size + 1; s < v->gameinput.grid_size; s += 1)
-			{
-				if (q + r + s == 0)
-				{
-					t_tile* dt = &g->tile[i];
-					t_tile *st = &src->tile[i];
-					dt->q = st->q;
-					dt->r = st->r;
-					dt->s = st->s;
-					dt->wall = st->wall;
-					dt->x = st->x;
-					dt->y = st->y;
-					dt->chip.value = st->chip.value;
-					dt->chip.tile_index = st->chip.tile_index;
-					dt->chip.placed = st->chip.placed;
-					dt->chip.x = st->chip.x;
-					dt->chip.y = st->chip.y;
-					i += 1;
-				}
-			}
-		}
-	}
+    g->tile = malloc(v->gameinput.amount_of_tiles * sizeof(t_tile));
+    memcpy(g->tile, src->tile, sizeof(t_tile) * v->gameinput.amount_of_tiles);
 }
 
 void	init_gamestate(t_vars *v, t_gamestate *g)
@@ -107,7 +104,7 @@ void	init_gamestate(t_vars *v, t_gamestate *g)
 void	copy_gamestate(t_vars *v, t_gamestate *dst, t_gamestate *src)
 {
 	copy_tiles(v, dst, src);
-	init_neigh(v, dst);
+	copy_neigh(v, dst, src);
 	dst->gravity = src->gravity;
 }
 
