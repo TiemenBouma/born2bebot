@@ -8,5 +8,6 @@ int     min(int a, int b);
 bool	is_my_color(t_gameinput *g, int value);
 bool	is_opp_color(t_gameinput *g, int value);
 bool	is_empty(t_vars *v, t_gamestate *g, int col);
+int     direction_check(const t_tile *current_tile, int direction);
 
 #endif
