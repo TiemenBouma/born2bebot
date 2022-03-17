@@ -1,4 +1,5 @@
 #include "born2bebot.h"
+#include "utils.h"
 
 t_tile*	game_update(t_vars *v, t_gamestate *g, t_tile *t)
 {
@@ -26,21 +27,13 @@ static void game_rotate(t_vars *v, t_gamestate *g, int gravity)
 	}
 }
 
-static void game_drop(t_vars *v, t_gamestate *g, int q, int r, int s, int value)
+static t_tile* game_drop(t_vars *v, t_gamestate *g, int q, int r, int s, int value)
 {
 	t_tile* t = game_get(v, g, q, r, s);
-	if (!t)
-	{
-		dprintf(2, "[%p]\n", (void*)t);
-		
-		dprintf(2, "[%d][%d][%d]\n", q, r, s);
-		exit(0);
-		return;
-	}
 	t->chip.value = value;
 	t->chip.x = t->x;
 	t->chip.y = t->y;
-	game_update(v, g, t);
+	return (game_update(v, g, t));
 }
 
 void compute_pos(int pos, int size, int gravity, int *q, int *r, int *s)
@@ -122,6 +115,44 @@ bool	game_end(t_vars *v)
 	return false;
 }
 
+// bool	process_move(t_vars *v, t_gamestate *g, t_move *m)
+// {
+// 	int q, r, s;
+
+// 	switch (m->type)
+// 	{
+// 		case drop:
+// 			compute_pos(m->column, v->gameinput.grid_size, g->gravity, &q, &r, &s);
+// 			game_drop(v, g, q, r, s, m->color);
+
+// 			break;
+
+// 		case rotate:
+// 			game_rotate(v, g, m->direction);
+// 			break;
+// 	}
+// 	return (game_end(v));
+// }
+
+int    can_block_opponent_win(t_gameinput* input, t_tile* location) {
+    for (size_t i = 0; i < 6; i++) {
+        if (!location->neigh[i] || location->neigh[i]->chip.value == -1)
+		{
+			//dprintf(2, "location not here\n");
+            continue;
+		}
+        if (is_opp_color(input, location->neigh[i]->chip.value)) {
+            if (direction_check(location->neigh[i], i) == input->win_length - 1) {
+                return (100);
+            }
+			if (direction_check(location->neigh[i], i) == input->win_length - 2) {
+                return (50);
+            }
+        }
+    }
+    return 0;
+}
+
 bool	process_move(t_vars *v, t_gamestate *g, t_move *m)
 {
 	int q, r, s;
@@ -130,7 +161,12 @@ bool	process_move(t_vars *v, t_gamestate *g, t_move *m)
 	{
 		case drop:
 			compute_pos(m->column, v->gameinput.grid_size, g->gravity, &q, &r, &s);
-			game_drop(v, g, q, r, s, m->color);
+			t_tile *location = game_drop(v, g, q, r, s, m->color);
+			if (location != NULL)
+			{
+				g->rating = can_block_opponent_win(&v->gameinput, location);
+				//dprintf(2, "g->rating: %d\n", g->rating);
+			}
 			break;
 
 		case rotate:

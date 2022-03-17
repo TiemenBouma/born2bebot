@@ -49,5 +49,5 @@ void	timer(float timeout, volatile const bool* const end_of_turn)
         get_elapsed_time(&diff, &current, &start);
         elapsed_us = diff.tv_sec * one_million + diff.tv_usec;
     }
-	dprintf(2, "time elapsed (us): [%lu] / [%lu]\n", elapsed_us, time_limit_in_us);
+	//dprintf(2, "time elapsed (us): [%lu] / [%lu]\n", elapsed_us, time_limit_in_us);
 }

@@ -55,10 +55,6 @@ int	rate_gamestate(t_vars *v, t_gamestate *gamestate)
 {
 	int color = game_winner(v, gamestate);
 
-	if (!is_empty(v, gamestate, gamestate->move.column))
-	{
-		return INT_MIN;
-	}
 	if (is_my_color(&v->gameinput, color))
 	{
 		return INT_MAX;
@@ -67,7 +63,7 @@ int	rate_gamestate(t_vars *v, t_gamestate *gamestate)
 	{
 		return -1000;
 	}
-	return 0;
+	return (gamestate->rating);
 }
 
 t_gamestate*	clone_gamestates(t_vars *v, t_gamestate *src, int amount_gamestates)
@@ -146,7 +142,6 @@ void	search_best_move(t_vars *v)
 
 	for (int i = 0; i < v->current.amount_possible_moves; ++i)
 	{
-		dprintf(2, "rating i = %d: %d\n", i, v->current.deeper[i].rating);
 		if (v->current.deeper[i].rating > highest_rating)
 		{
 			highest_rating = v->current.deeper[i].rating;
@@ -185,6 +180,7 @@ void	*bot(void *ptr)
 		t_move *opp_legal_moves = get_legal_moves(v, opp_amount_moves, opp_id * 2, opp_id * 2 + 1);
 		copy_moves_to_gamestate(v, opp_legal_moves, v->current.deeper[i].deeper, opp_amount_moves);
 		free(opp_legal_moves);
+		//dprintf(2, "rating i = %d: %d\n", i, v->current.deeper[i].rating);
 	}
 	search_best_move(v);
 
@@ -201,8 +197,17 @@ void	*bot(void *ptr)
 				else
 					v->current.deeper[i].rating = -750;
 				break ;
+			}	
+			if (v->current.deeper[i].deeper[j].rating == 50 && v->current.deeper[i].rating >= 0)
+			{
+				if (v->current.deeper[i].move.type == drop)
+					v->current.deeper[i].rating = -50;
+				else
+					v->current.deeper[i].rating = -30;
+				break ;
 			}		
 		}
+		//dprintf(2, "rating i = %d: %d\n", i, v->current.deeper[i].rating);
 	}
 	search_best_move(v);
 
